@@ -51,7 +51,17 @@ def get_context(context):
 	if frappe.session.user == "Guest":
 		frappe.response["status_code"] = 403
 		frappe.msgprint(_("Log in to access this page."))
-		frappe.redirect(f"/login?{urlencode({'redirect-to': frappe.request.path})}")
+		# LOCAL FIX (not in the upstream repo): bare "/login" has no meaning
+		# to the gateway once a tenant session is active — it only ever
+		# serves the login page at "/workspace/{slug}/login". Without this,
+		# hitting a desk page as a guest (e.g. after the session expires)
+		# drops the user onto the platform's own /login instead of this
+		# tenant's. Same fix, same cookie, as desk.js's redirect_to_login().
+		login_path = "/login"
+		tenant_slug = frappe.request.cookies.get("pyx_tenant") or frappe.request.cookies.get("pyxd_tenant")
+		if tenant_slug:
+			login_path = f"/workspace/{tenant_slug}/login"
+		frappe.redirect(f"{login_path}?{urlencode({'redirect-to': frappe.request.path})}")
 
 	elif frappe.session.data.user_type == "Website User":
 		frappe.throw(_("You are not permitted to access this page."), frappe.PermissionError)
