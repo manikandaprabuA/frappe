@@ -204,7 +204,7 @@ frappe.form.formatters = {
 		} else if (docfield && doctype) {
 			if (frappe.model.can_read(doctype)) {
 				const a = document.createElement("a");
-				a.href = `/desk/${encodeURIComponent(
+				a.href = `/workspace/${encodeURIComponent(
 					frappe.router.slug(doctype)
 				)}/${encodeURIComponent(original_value)}`;
 				a.dataset.doctype = doctype;

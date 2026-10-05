@@ -9,7 +9,12 @@ frappe.ui.form.on("Workspace", {
 	refresh: function (frm) {
 		frm.enable_save();
 		frm.trigger("add_to_desktop");
-		let url = `/desk/${
+		// LOCAL FIX (not in the upstream repo): "/desk" renamed to
+		// "/workspace" (see router.js's make_url/strip_prefix) — this link
+		// opens target="_blank", which the global click-interceptor
+		// deliberately skips (see router.js), so it needs the new prefix
+		// directly rather than relying on being rerouted.
+		let url = `/workspace/${
 			frm.doc.public
 				? frappe.router.slug(frm.doc.name)
 				: "private/" + frappe.router.slug(frm.doc.name)

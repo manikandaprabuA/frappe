@@ -39,7 +39,7 @@
    "unique": 1
   },
   {
-   "description": "Route: Example \"/desk\"",
+   "description": "Route: Example \"/workspace\"",
    "fieldname": "home_page",
    "fieldtype": "Data",
    "label": "Home Page"

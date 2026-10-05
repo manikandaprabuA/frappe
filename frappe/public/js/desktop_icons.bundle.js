@@ -2,7 +2,7 @@
 // `Desktop Icons` (folders, drag-to-reorder, edit mode). The default `Apps` mode uses the
 // hook-driven grid in desktop.js instead.
 //
-// Loaded lazily by frappe/desk/page/desktop/desktop.js, because Page.load_assets reads exactly
+// Loaded lazily by frappe/workspace/page/desktop/desktop.js, because Page.load_assets reads exactly
 // one `<page_name>.js` per page, so a second file in that folder would never be served. Keeping
 // it out of desk.bundle also keeps about 1200 lines off every desk page load.
 import "./frappe/ui/desktop_icons_item.html";
@@ -458,7 +458,7 @@ class DesktopPage {
 			{
 				icon: "pencil",
 				label: "Edit Profile",
-				url: `/desk/user/${frappe.session.user}`,
+				url: `/workspace/user/${frappe.session.user}`,
 			},
 			{
 				icon: is_dark ? "sun" : "moon",

@@ -580,7 +580,7 @@ frappe.views.KanbanView.get_kanbans = function (doctype) {
 	return get_kanban_boards().then((kanban_boards) => {
 		if (kanban_boards) {
 			kanban_boards.forEach((board) => {
-				let route = `/desk/${frappe.router.slug(board.reference_doctype)}/view/kanban/${
+				let route = `/workspace/${frappe.router.slug(board.reference_doctype)}/view/kanban/${
 					board.name
 				}`;
 				kanbans.push({ name: board.name, route: route });

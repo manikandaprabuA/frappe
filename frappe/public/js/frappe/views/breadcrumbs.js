@@ -34,7 +34,7 @@ frappe.breadcrumbs = {
 		const tree_title = frappe.treeview_settings?.[doctype]?.title || doctype;
 
 		this.append_breadcrumb_element(
-			`/desk/${frappe.router.slug(doctype)}`,
+			`/workspace/${frappe.router.slug(doctype)}`,
 			__(tree_title),
 			"title-text"
 		);
@@ -136,7 +136,7 @@ frappe.breadcrumbs = {
 				route = doctype_route;
 			}
 			const reset = breadcrumbs.layout_name ? "?reset_filters=1" : "";
-			this.append_breadcrumb_element(`/desk/${route}${reset}`, __(doctype), "title-text");
+			this.append_breadcrumb_element(`/workspace/${route}${reset}`, __(doctype), "title-text");
 		}
 
 		let list_crumb = this.$breadcrumbs.find("li a.title-text");
@@ -147,7 +147,7 @@ frappe.breadcrumbs = {
 		const doctype = breadcrumbs.doctype;
 		let docname = frappe.get_route().slice(2).join("/");
 		let doc = frappe.get_doc(doctype, docname);
-		let form_route = `/desk/${frappe.router.slug(doctype)}/${encodeURIComponent(docname)}`;
+		let form_route = `/workspace/${frappe.router.slug(doctype)}/${encodeURIComponent(docname)}`;
 
 		let docname_title;
 		let is_new_doc = false;
@@ -173,7 +173,7 @@ frappe.breadcrumbs = {
 			);
 			filter_params._layout = breadcrumbs.layout_name;
 			const query = new URLSearchParams(filter_params).toString();
-			const layout_route = `/desk/${doctype_slug}${query ? "?" + query : ""}`;
+			const layout_route = `/workspace/${doctype_slug}${query ? "?" + query : ""}`;
 			this.append_breadcrumb_element(layout_route, __(display_title));
 		}
 
@@ -197,7 +197,7 @@ frappe.breadcrumbs = {
 		// its name, and the route must still reach the document.
 		const docname = breadcrumbs.docname || frappe.get_route()[1];
 		const label = breadcrumbs.label || docname;
-		let dashboard_route = `/desk/${frappe.router.slug(doctype)}/${docname}`;
+		let dashboard_route = `/workspace/${frappe.router.slug(doctype)}/${docname}`;
 		$(
 			`<li><a href="${frappe.utils.escape_html(dashboard_route)}">${frappe.utils.escape_html(
 				__(label)

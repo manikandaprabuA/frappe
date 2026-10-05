@@ -12,9 +12,9 @@ frappe.listview_settings["Print Format"] = {
 			doc.print_format_for !== "Report" &&
 			(doc.standard !== "Yes" || frappe.boot.developer_mode)
 		) {
-			return `/desk/print-format-builder/${encodeURIComponent(doc.name)}`;
+			return `/workspace/print-format-builder/${encodeURIComponent(doc.name)}`;
 		}
-		return `/desk/print-format/${encodeURIComponent(doc.name)}`;
+		return `/workspace/print-format/${encodeURIComponent(doc.name)}`;
 	},
 
 	primary_action() {

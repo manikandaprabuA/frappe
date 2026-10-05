@@ -322,7 +322,20 @@ login.login_handlers = (function () {
 			if (data.message == 'Logged In') {
 				login.set_status({{ _("Success") | tojson }}, 'green');
 				document.body.innerHTML = `{% include "templates/includes/splash_screen.html" %}`;
-				window.location.href = frappe.utils.sanitise_redirect(frappe.utils.get_url_arg("redirect-to")) || data.home_page;
+				// LOCAL FIX (not in the upstream repo): data.home_page ("desk") is a
+				// bare relative string with no leading slash. The browser resolves
+				// that relative to the CURRENT url's directory, which is fine when
+				// login lives at "/login" (-> "/desk") but breaks when a gateway
+				// serves this same login page at "/workspace/{slug}" (-> resolves to
+				// "/workspace/desk" instead, a path with no meaning to Frappe's own
+				// client-side router, which has no concept of that prefix). Force an
+				// absolute path so the browser always lands on a route the desk SPA
+				// itself recognizes, regardless of what URL the login page was on.
+				var _redirect_to = frappe.utils.sanitise_redirect(frappe.utils.get_url_arg("redirect-to")) || data.home_page;
+				if (_redirect_to && _redirect_to.charAt(0) !== "/" && !/^[a-z][a-z0-9+.-]*:/i.test(_redirect_to)) {
+					_redirect_to = "/" + _redirect_to;
+				}
+				window.location.href = _redirect_to;
 			} else if (data.message == 'Password Reset') {
 				window.location.href = frappe.utils.sanitise_redirect(data.redirect_to);
 			} else if (data.message == "No App") {
@@ -341,7 +354,9 @@ login.login_handlers = (function () {
 				if (last_visited && last_visited != "/login") {
 					window.location.href = last_visited;
 				} else {
-					window.location.href = data.home_page;
+					// LOCAL FIX (not in the upstream repo): same bare-relative-path
+					// issue as the "Logged In" branch above.
+					window.location.href = data.home_page.charAt(0) === "/" ? data.home_page : "/" + data.home_page;
 				}
 			} else if (window.location.hash === '#forgot') {
 				// Always show the same message regardless of whether the account

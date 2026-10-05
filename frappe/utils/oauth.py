@@ -458,8 +458,40 @@ def redirect_post_login(desk_user: bool, redirect_to: str | None = None, provide
 	frappe.local.response["type"] = "redirect"
 
 	if not redirect_to:
-		desk_uri = "/desk/workspace" if provider == "facebook" else get_default_path()
+		# LOCAL FIX (not in the upstream repo): was get_default_path() here,
+		# which only ever resolves via System Settings.default_app or the
+		# user's own User.default_app (frappe/apps.py) — neither of which
+		# anything on this bench ever sets, so every one-time-login-key /
+		# OAuth sign-in landed on the generic desk app-switcher screen
+		# (bare "/desk") no matter what. The *regular* username+password
+		# login path (auth.py LoginManager.set_user_info) resolves the exact
+		# same "where does this user land" question through get_home_page()
+		# instead, which DOES check User.default_workspace (set for every
+		# tenant admin — see pyx's onboarding/provisioning) — that's why
+		# password login already landed correctly on hr-setup while this
+		# path didn't. Matching that same precedence here instead of
+		# duplicating a second, inconsistent notion of "the user's home".
+		desk_uri = "/desk/workspace" if provider == "facebook" else (get_home_page() or get_default_path())
 		website_uri = get_default_path() or get_home_page() or "/me"
-		redirect_to = frappe.utils.get_url(desk_uri if desk_user else website_uri)
+		# LOCAL FIX (not in the upstream repo): desk_uri used to be run
+		# through get_url() same as website_uri below — on this bench,
+		# host_name carries a "/workspace/{slug}" path (see
+		# tenant_manager.provisioning; that's what makes get_url() correctly
+		# rewrite EMAIL links to the tenant-prefixed gateway URL), and
+		# get_url() dutifully preserved that prefix here too, redirecting
+		# the browser to "/workspace/{slug}/desk/..." instead. That's an
+		# extra, unwanted hop: the regular password-login path
+		# (login.js's data.home_page) never goes through get_url() at all —
+		# it hands the browser a bare "/desk/..." and lets nginx's own
+		# cookie-based routing (the pyx_tenant cookie set moments earlier,
+		# when this very link was first opened) resolve the tenant, exactly
+		# as a signed-in user's own un-prefixed /desk calls always do. Doing
+		# the same here — skipping get_url() for the desk case only —
+		# matches that, and the browser is already same-origin so a bare
+		# absolute path resolves correctly without needing scheme+host.
+		# website_uri (a Website User's non-desk landing page) is untouched:
+		# that visitor may not have ever been on a "/workspace/{slug}" URL
+		# yet, so it still needs get_url()'s tenant-prefix to reach one.
+		redirect_to = desk_uri if desk_user else frappe.utils.get_url(website_uri)
 
 	frappe.local.response["location"] = redirect_to

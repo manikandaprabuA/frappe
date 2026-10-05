@@ -544,7 +544,13 @@ function is_in_app_path(route) {
 
 function is_desk_path(path) {
 	const pathname = path.split(/[?#]/)[0];
+	// LOCAL FIX (not in the upstream repo): "/desk" renamed to "/workspace"
+	// (see router.js's make_url/strip_prefix) — "/desk" is kept alongside it
+	// only for a route string built from a path still in flight from before
+	// the rename.
 	return (
+		pathname === "/workspace" ||
+		pathname.startsWith("/workspace/") ||
 		pathname === "/desk" ||
 		pathname.startsWith("/desk/") ||
 		pathname === "/app" ||

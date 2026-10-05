@@ -1023,7 +1023,15 @@ def update_password(
 	frappe.db.set_value("User", user, "reset_password_key", "")
 
 	if user_doc.user_type == "System User":
-		return get_default_path() or "/desk"
+		# LOCAL FIX (not in the upstream repo): was get_default_path() or
+		# "/desk" — same inconsistency already fixed in frappe.utils.oauth.
+		# redirect_post_login (see its own comment): get_default_path() only
+		# resolves via System Settings/User.default_app, which nothing on
+		# this bench sets, so a password reset always landed on the generic
+		# desk app-switcher instead of this user's actual default_workspace
+		# (get_home_page() — the same function the *regular* login path uses
+		# via auth.py's LoginManager.set_user_info). Matching that here too.
+		return get_home_page() or "/desk"
 	else:
 		return redirect_url or get_default_path() or get_home_page()
 

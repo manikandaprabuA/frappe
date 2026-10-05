@@ -1801,7 +1801,9 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 			return this.settings.get_form_link(doc);
 		}
 
-		return `/desk/${encodeURIComponent(
+		// LOCAL FIX (not in the upstream repo): "/desk" renamed to
+		// "/workspace" (see router.js's make_url/strip_prefix).
+		return `/workspace/${encodeURIComponent(
 			frappe.router.slug(frappe.router.doctype_layout || this.doctype)
 		)}/${encodeURIComponent(cstr(doc.name))}`;
 	}

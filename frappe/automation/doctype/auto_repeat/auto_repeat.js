@@ -31,7 +31,9 @@ frappe.ui.form.on("Auto Repeat", {
 	refresh: function (frm) {
 		// auto repeat message
 		if (frm.is_new()) {
-			let customize_form_link = `<a href="/desk/customize-form">${__("Customize Form")}</a>`;
+			// LOCAL FIX (not in the upstream repo): "/desk" renamed to
+			// "/workspace" (see router.js's make_url/strip_prefix).
+			let customize_form_link = `<a href="/workspace/customize-form">${__("Customize Form")}</a>`;
 			frm.dashboard.set_headline(
 				__('To configure Auto Repeat, enable "Allow Auto Repeat" from {0}.', [
 					customize_form_link,

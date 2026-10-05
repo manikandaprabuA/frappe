@@ -2032,7 +2032,39 @@ def get_url(
 	):
 		host_name = host_name + ":" + str(port)
 
-	return urljoin(host_name, uri) if uri else host_name
+	if not uri:
+		return host_name
+
+	# LOCAL FIX (not in the upstream repo): urljoin("https://x/workspace/slug", "/api/...")
+	# discards "/workspace/slug" entirely — urljoin treats an absolute-path uri as
+	# replacing the base's whole path, per normal URL-resolution semantics. That's
+	# correct in general, but breaks every email link this generates (password
+	# reset, welcome mail, 2FA setup...) on a tenant whose host_name is configured
+	# with a path prefix (see tenant_manager.provisioning, which sets host_name to
+	# ".../workspace/{slug}" specifically so those links land on the right tenant
+	# through the gateway). Preserve that prefix by appending instead of replacing.
+	#
+	# Applies whether or not uri has a leading slash. A bare "desk" (no leading
+	# slash) hits urljoin's *document*-relative resolution instead of the
+	# absolute-path case — it replaces the base's last path segment rather than
+	# its whole path, which is just as wrong here: urljoin(".../workspace/slug",
+	# "desk") silently produces ".../workspace/desk", losing the tenant slug
+	# entirely (490s, "desk" isn't a real one). Found via
+	# frappe.core.api.user_invitation._accept_invitation, whose
+	# User_Invitation.get_redirect_to_path() strips the leading slash before
+	# calling this — Frappe's own callers never actually mean "resolve like a
+	# browser resolves a relative href" here, every one of them means
+	# "site-root-relative", leading slash or not.
+	from urllib.parse import urlsplit, urlunsplit
+
+	base = urlsplit(host_name)
+	if base.path and base.path != "/":
+		normalized_uri = uri if uri.startswith("/") else "/" + uri
+		return urlunsplit(
+			(base.scheme, base.netloc, base.path.rstrip("/") + normalized_uri, base.query, base.fragment)
+		)
+
+	return urljoin(host_name, uri)
 
 
 def get_host_name_from_request() -> str:

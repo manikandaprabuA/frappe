@@ -1002,7 +1002,13 @@ Object.assign(frappe.utils, {
 	) {
 		display_text = display_text || frappe.utils.escape_html(name);
 		name = encodeURIComponent(name);
-		let route = `/desk/${encodeURIComponent(
+		// LOCAL FIX (not in the upstream repo): "/desk" renamed to
+		// "/workspace" (see router.js's make_url/strip_prefix) — clicking
+		// this href is already intercepted and re-routed by router.js
+		// regardless of what it literally says (see the global "a" click
+		// handler there), so this specific string only actually matters for
+		// what a hover preview or "copy link" shows; kept in sync anyway.
+		let route = `/workspace/${encodeURIComponent(
 			doctype.toLowerCase().replace(/ /g, "-")
 		)}/${name}`;
 		if (query_params_obj) {
@@ -1476,10 +1482,13 @@ Object.assign(frappe.utils, {
 					} else if (first_link.link_type == "Workspace") {
 						let workspaces = frappe.workspaces[frappe.router.slug(first_link.link_to)];
 						if (workspaces) {
+							// LOCAL FIX (not in the upstream repo): "/desk"
+							// renamed to "/workspace" (see router.js's
+							// make_url/strip_prefix).
 							if (workspaces.public) {
-								route = "/desk/" + frappe.router.slug(first_link.link_to);
+								route = "/workspace/" + frappe.router.slug(first_link.link_to);
 							} else {
-								route = "/desk/private/" + frappe.router.slug(workspaces.title);
+								route = "/workspace/private/" + frappe.router.slug(workspaces.title);
 							}
 						}
 
@@ -1730,7 +1739,9 @@ Object.assign(frappe.utils, {
 		// (item.doctype && frappe.model.can_read(item.doctype))) {
 		//     item.shown = true;
 		// }
-		return `/desk/${route}`;
+		// LOCAL FIX (not in the upstream repo): "/desk" renamed to
+		// "/workspace" (see router.js's make_url/strip_prefix).
+		return `/workspace/${route}`;
 	},
 
 	shorten_number: function (number, country, min_length = 4, max_no_of_decimals = 2) {
