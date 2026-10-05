@@ -87,9 +87,7 @@ class DesktopPage {
 			.filter((app) => app.on_apps_screen)
 			.map((app) => ({
 				...app,
-				// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-				// "/workspace" (see router.js's make_url/strip_prefix).
-				route: frappe.app.sidebar?.app_landing_route(app) || app.app_route || "/workspace",
+				route: frappe.app.sidebar?.app_landing_route(app) || app.app_route || "/desk",
 			}))
 			.sort((a, b) => (a.sequence_id ?? 100) - (b.sequence_id ?? 100));
 
@@ -245,9 +243,7 @@ class DesktopPage {
 			{
 				icon: "pencil",
 				label: "Edit Profile",
-				// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-				// "/workspace" (see router.js's make_url/strip_prefix).
-				url: `/workspace/user/${frappe.session.user}`,
+				url: `/desk/user/${frappe.session.user}`,
 				order: 10,
 			},
 			{

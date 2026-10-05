@@ -35,7 +35,7 @@
  "show_list": 0,
  "show_sidebar": 0,
  "success_message": "If this email is registered with us, a download link will be sent to it.",
- "success_url": "/workspace",
+ "success_url": "/desk",
  "title": "Request Data",
  "web_form_fields": [
   {

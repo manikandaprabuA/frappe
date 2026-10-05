@@ -34,14 +34,7 @@
 </div>
 <script>
 	frappe.ready(function() {
-		// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-		// "/workspace" (see router.js's make_url/strip_prefix) — "/desk" kept
-		// alongside it only for a URL still in flight from before the rename.
-		if (
-			window.location.hash ||
-			window.location.href.includes('/workspace') ||
-			window.location.href.includes('/desk')
-		) {
+		if (window.location.hash || window.location.href.includes('/desk')) {
 			localStorage.setItem('session_last_route', window.location.pathname);
 		}
 

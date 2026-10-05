@@ -2328,11 +2328,9 @@ frappe.ui.form.Form = class FrappeForm {
 
 				const escaped_name = encodeURIComponent(value);
 
-				// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-				// "/workspace" (see router.js's make_url/strip_prefix).
 				return `
 						<a class="indicator ${get_color(doc || {})}"
-							href="/workspace/${frappe.router.slug(df.options)}/${escaped_name}"
+							href="/desk/${frappe.router.slug(df.options)}/${escaped_name}"
 							data-doctype="${df.options}"
 							data-name="${frappe.utils.escape_html(value)}">
 							${label}
@@ -2657,12 +2655,10 @@ frappe.ui.form.Form = class FrappeForm {
 						secondary = `: <span>${r.message.exc}</span>`;
 					} else {
 						div_class = "col-md-6";
-						// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-						// "/workspace" (see router.js's make_url/strip_prefix).
 						secondary = `
 						</div>
 						<div class="col-md-6">
-							<a href='/workspace/submission-queue?ref_doctype=${encodeURIComponent(
+							<a href='/desk/submission-queue?ref_doctype=${encodeURIComponent(
 								this.doctype
 							)}&ref_docname=${encodeURIComponent(this.docname)}'>${__(
 							"All Submissions"
@@ -2673,7 +2669,7 @@ frappe.ui.form.Form = class FrappeForm {
 					let html = `
 					<div class="row">
 						<div class="${div_class}">
-							<a href='/workspace/submission-queue/${r.message.latest_submission}'>${submission_label} (${r.message.status})</a>${secondary}
+							<a href='/desk/submission-queue/${r.message.latest_submission}'>${submission_label} (${r.message.status})</a>${secondary}
 						</div>
 					</div>
 					`;

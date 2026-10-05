@@ -48,7 +48,7 @@
    "options": "Portal Menu Item"
   },
   {
-   "description": "Example: \"/workspace\"",
+   "description": "Example: \"/desk\"",
    "fieldname": "default_portal_home",
    "fieldtype": "Data",
    "label": "Default Portal Home"

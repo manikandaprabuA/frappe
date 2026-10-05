@@ -283,7 +283,7 @@
   },
   {
    "default": "0",
-   "description": "To use Google Indexing, enable <a href=\"/workspace/google-settings\" rel=\"noopener noreferrer\">Google Settings</a>.",
+   "description": "To use Google Indexing, enable <a href=\"/desk/google-settings\" rel=\"noopener noreferrer\">Google Settings</a>.",
    "fieldname": "enable_google_indexing",
    "fieldtype": "Check",
    "label": "Enable Google indexing"

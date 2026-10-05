@@ -451,9 +451,7 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 		frappe.xcall(method, { args: args }).then(() => {
 			let message;
 			if (dashboard_name) {
-				// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-				// "/workspace" (see router.js's make_url/strip_prefix).
-				let dashboard_route_html = `<a href="/workspace/dashboard-view/${dashboard_name}">${dashboard_name}</a>`;
+				let dashboard_route_html = `<a href="/desk/dashboard-view/${dashboard_name}">${dashboard_name}</a>`;
 				message = __("New {0} {1} added to Dashboard {2}", [
 					__(doctype),
 					name,
@@ -1087,9 +1085,7 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 	}
 
 	get_queued_prepared_reports_warning_message(reports) {
-		// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-		// "/workspace" (see router.js's make_url/strip_prefix).
-		const route = `/workspace/List/Prepared Report/List?status=Queued&report_name=${this.report_name}`;
+		const route = `/desk/List/Prepared Report/List?status=Queued&report_name=${this.report_name}`;
 		const report_link_html =
 			reports.length == 1
 				? `<a class="underline" href="${route}">${__("1 Report")}</a>`
@@ -1112,10 +1108,8 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 				${no_of_reports_html}
 			</p>`;
 
-		// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-		// "/workspace" (see router.js's make_url/strip_prefix).
 		let get_item_html = (item) =>
-			`<a class="underline" href="/workspace/prepared-report/${item.name}">${item.name}</a>`;
+			`<a class="underline" href="/desk/prepared-report/${item.name}">${item.name}</a>`;
 
 		warning_message += reports.map(get_item_html).join(", ");
 

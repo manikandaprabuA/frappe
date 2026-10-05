@@ -313,15 +313,7 @@ frappe.ui.Dialog = class Dialog extends frappe.ui.FieldGroup {
 
 	show() {
 		// show it
-		// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-		// "/workspace" (see router.js's make_url/strip_prefix) — this check
-		// is what a signed-in user's own address bar shows now, "/desk" is
-		// kept alongside it only for a path still in flight from before the
-		// rename (open tab, browser history).
-		if (
-			window.location.pathname.startsWith("/workspace") ||
-			window.location.pathname.startsWith("/desk")
-		) {
+		if (window.location.pathname.startsWith("/desk")) {
 			this.handle_focus();
 		}
 

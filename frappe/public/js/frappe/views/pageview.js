@@ -278,7 +278,7 @@ frappe.show_message_page = function (opts) {
 			<div class="text-center message-page-content">\
 				%(img)s\
 				<p class="lead">%(message)s</p>\
-				<a class="btn btn-default btn-sm btn-home" href="/workspace">%(home)s</a>\
+				<a class="btn btn-default btn-sm btn-home" href="/desk">%(home)s</a>\
 			</div>\
 		</div>',
 			{

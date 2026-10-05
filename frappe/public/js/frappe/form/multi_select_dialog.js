@@ -481,10 +481,8 @@ frappe.ui.form.MultiSelectDialog = class MultiSelectDialog {
 		this.get_datatable_columns().forEach(function (column) {
 			let column_label = frappe.utils.escape_html(__(frappe.model.unscrub(column)));
 			let value = frappe.utils.escape_html(__(result[column] || ""));
-			// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-			// "/workspace" (see router.js's make_url/strip_prefix).
 			let id_href = frappe.utils.escape_html(
-				"/workspace/" + frappe.router.slug(me.doctype) + "/" + (result[column] || "")
+				"/desk/" + frappe.router.slug(me.doctype) + "/" + (result[column] || "")
 			);
 			contents += `<div class="list-item__content ellipsis">
 				${

@@ -435,14 +435,8 @@ frappe.router = {
 			route.shift();
 		}
 
-		// LOCAL FIX (not in the upstream repo): "workspace" added alongside
-		// "desk" — "/desk" renamed to "/workspace" (see make_url/
-		// strip_prefix above), so a caller passing a full path string like
-		// frappe.set_route("/workspace/List/Employee") needs the same
-		// leading-segment strip "desk" already got, or it'd be kept as a
-		// route part and end up double-prefixed by make_url() below.
-		if (route && ["desk", "workspace", "app"].includes(route[0])) {
-			// we only need subpath, remove "app" (or "desk"/"workspace")
+		if (route && ["desk", "app"].includes(route[0])) {
+			// we only need subpath, remove "app" (or "desk")
 			route.shift();
 		}
 
@@ -507,23 +501,12 @@ frappe.router = {
 			}
 		}).join("/");
 
-		// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-		// "/workspace" — this is the ONE function every internal navigation
-		// funnels through (frappe.set_route(...), called from hundreds of
-		// places across list/form/report/kanban/etc., always ends up here —
-		// see set_route() above) to build the address the browser shows, so
-		// this single change is what makes every one of those show
-		// "/workspace/..." instead of "/desk/...". The matching read-side
-		// change is strip_prefix() below. Backend Python is untouched: the
-		// gateway (pyx-gateway.conf) transparently rewrites "/workspace/..."
-		// to "/desk/..." before it ever reaches Frappe, so nothing server-side
-		// needs to know this rename happened at all.
 		if (path_string) {
-			return "/workspace/" + path_string;
+			return "/desk/" + path_string;
 		}
 
 		if (params.length == 0) {
-			return "/workspace";
+			return "/desk";
 		}
 		// Resolution order
 		// 1. User's default workspace in user doctype
@@ -532,7 +515,7 @@ frappe.router = {
 		// 4. First workspace in list of current app
 		// 5. First workspace in list
 
-		return "/workspace";
+		return "/desk";
 	},
 
 	/**
@@ -565,17 +548,8 @@ frappe.router = {
 
 	strip_prefix(route) {
 		if (route.substr(0, 1) == "/") route = route.substr(1); // for /desk/sub
-		// LOCAL FIX (not in the upstream repo): "workspace" is the new
-		// canonical prefix (see make_url() above for the write side) —
-		// "desk" is still recognized too, purely so a stale bookmark/link
-		// from before this rename (or a URL a browser's back/forward history
-		// still holds from mid-session) keeps parsing correctly instead of
-		// silently landing on the wrong route. Every NEW address this app
-		// itself writes uses "workspace" only.
-		if (route == "workspace") route = route.substr(9);
-		else if (route == "desk") route = route.substr(4); // legacy
-		if (route.startsWith("workspace/")) route = route.substr(9); // for workspace/sub
-		else if (route.startsWith("desk/")) route = route.substr(4); // for desk/sub (legacy)
+		if (route == "desk") route = route.substr(4); // for app
+		if (route.startsWith("desk/")) route = route.substr(4); // for desk/sub
 		if (route.substr(0, 1) == "/") route = route.substr(1);
 		if (route.substr(0, 1) == "#") route = route.substr(1);
 		if (route.substr(0, 1) == "!") route = route.substr(1);

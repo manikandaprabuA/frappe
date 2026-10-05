@@ -58,16 +58,11 @@ frappe.ui.form.on("DocType", {
 				? __("Go to {0}", [__(frm.doc.name)])
 				: __("Go to {0} List", [__(frm.doc.name)]);
 			frm.add_custom_button(button_text, () => {
-				// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-				// "/workspace" (see router.js's make_url/strip_prefix) —
-				// window.open() isn't a click on an <a>, so it bypasses the
-				// global click-interceptor that reroutes other hrefs; this
-				// one needs the new prefix directly.
-				window.open(`/workspace/${frappe.router.slug(frm.doc.name)}`);
+				window.open(`/desk/${frappe.router.slug(frm.doc.name)}`);
 			});
 		}
 
-		const customize_form_link = `<a href="/workspace/customize-form">${__("Customize Form")}</a>`;
+		const customize_form_link = `<a href="/desk/customize-form">${__("Customize Form")}</a>`;
 		if (!frappe.boot.developer_mode && !frm.doc.custom) {
 			// make the document read-only
 			frm.set_read_only();

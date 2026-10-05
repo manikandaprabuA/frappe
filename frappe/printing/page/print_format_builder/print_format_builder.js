@@ -46,7 +46,7 @@ function load_print_format_builder(wrapper) {
 	frappe.breadcrumbs.add({
 		type: "Custom",
 		label: __("Print Format"),
-		route: "/workspace/print-format",
+		route: "/desk/print-format",
 		_extra_label: route[1],
 	});
 	wrapper.page.set_title(route[1]);

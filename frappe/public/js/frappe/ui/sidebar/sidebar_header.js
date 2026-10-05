@@ -168,21 +168,10 @@ frappe.ui.SidebarHeader = class SidebarHeader {
 	// you are reads as a status line, and a menu row is something you press.
 	switcher_items() {
 		const sidebar = this.sidebar;
-		// LOCAL FIX (not in the upstream repo): dropped the "All apps" row
-		// entirely (both here and in the submenu below) — it's Frappe's own
-		// multi-app switcher (hrms/erpnext/pyx/tenant_manager as separate
-		// "apps" on one bench), and showing it to a tenant user is visible
-		// proof the platform is a shared Frappe bench under the hood, which
-		// undercuts the "one unified PYX product" branding this whole
-		// tenant-gateway setup is built around. A group whose rows are all
-		// hidden is dropped by frappe.ui.Dropdown on its own (see the
-		// menu_items() comment above), so returning [] here is enough — no
-		// empty "Apps" row or stray divider is left behind.
-		//
 		// The rail switches on a docked app, so the menu carries no switcher there. The one row it
 		// keeps is the way out to the apps screen, because on a docked app this menu opens from the
 		// rail's header -- which was that link before the menu moved onto it.
-		if (sidebar.dock_enabled()) return [];
+		if (sidebar.dock_enabled()) return [this.all_apps_item()];
 
 		const items = [];
 		const modules = sidebar.app_modules(sidebar.get_sidebar_app());
@@ -226,15 +215,17 @@ frappe.ui.SidebarHeader = class SidebarHeader {
 								? app.app_logo_url[0]
 								: app.app_logo_url,
 							onclick: () => {
-								const route = sidebar.app_landing_route(app) || "/workspace";
+								const route = sidebar.app_landing_route(app) || "/desk";
 								route.startsWith("http")
 									? window.open(route, "_blank")
 									: frappe.set_route(route);
 							},
 						})),
 				},
-				// LOCAL FIX (not in the upstream repo): "All apps" row dropped here
-				// too — see the comment on the dock_enabled() branch above.
+				{
+					group: "",
+					options: [this.all_apps_item()],
+				},
 			],
 		});
 
@@ -247,7 +238,7 @@ frappe.ui.SidebarHeader = class SidebarHeader {
 			name: "all-apps",
 			label: __("All apps"),
 			icon: "grid-2x2",
-			href: "/workspace",
+			href: "/desk",
 		};
 	}
 

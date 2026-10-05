@@ -331,7 +331,7 @@ frappe.ui.form.on("Notification", {
 			frm.set_df_property(
 				"channel",
 				"description",
-				`To use SMS Channel, initialize <a href="/workspace/sms-settings">SMS Settings</a>.`
+				`To use SMS Channel, initialize <a href="/desk/sms-settings">SMS Settings</a>.`
 			);
 		} else {
 			frm.set_df_property("channel", "description", ` `);

@@ -10,10 +10,8 @@ frappe.listview_settings["Deleted Document"] = {
 					callback: function (r) {
 						if (r.message) {
 							let body = (docnames) => {
-								// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-								// "/workspace" (see router.js's make_url/strip_prefix).
 								const html = docnames.map((docname) => {
-									return `<li><a href='/workspace/deleted-document/${docname}'>${docname}</a></li>`;
+									return `<li><a href='/desk/deleted-document/${docname}'>${docname}</a></li>`;
 								});
 								return "<br><ul>" + html.join("");
 							};

@@ -126,7 +126,7 @@ frappe.ui.setup_like_popover = ($parent, selector) => {
 		}
 
 		const liked_by_list = $('<ul class="list-unstyled"></ul>');
-		const link_base = "/workspace/user/";
+		const link_base = "/desk/user/";
 
 		liked_by.forEach((user) => {
 			liked_by_list.append(`

@@ -31,15 +31,7 @@ def get_context(context):
 			if frappe.session.data.user_type == "Website User":
 				redirect_to = get_default_path() or get_home_page()
 			else:
-				# LOCAL FIX (not in the upstream repo): was get_default_path()
-				# or "/desk" — same fix already applied in frappe.utils.oauth.
-				# redirect_post_login and User.update_password (see either's
-				# comment for the full reasoning): get_default_path() ignores
-				# User.default_workspace entirely, so an already-logged-in
-				# System User revisiting /login landed on the generic desk
-				# app-switcher instead of their actual home. get_home_page()
-				# is what the regular login flow itself resolves this through.
-				redirect_to = get_home_page() or "/desk"
+				redirect_to = get_default_path() or "/desk"
 
 		if redirect_to != "login":
 			frappe.local.flags.redirect_location = redirect_to
@@ -165,28 +157,8 @@ def send_login_link(email: str):
 			wrapper="templates/emails/auth_email.html",
 			now=True,
 		)
-	# LOCAL FIX (not in the upstream repo): upstream silently swallows
-	# DoesNotExistError here on purpose (frappe.clear_messages() + return, no
-	# error surfaced) — it's a deliberate anti user-enumeration measure (CWE-204,
-	# same reasoning as User.reset_password's "always return the same generic
-	# response" comment): a guest could otherwise feed emails into this form
-	# one at a time and learn which ones have accounts just from whether an
-	# error comes back. Requested behaviour here is the opposite trade-off —
-	# tell the user plainly when the email they typed has no account on this
-	# tenant, at the cost of that enumeration protection. Acceptable for this
-	# local/dev setup; re-silencing this is one line if that trade-off ever
-	# needs to flip back.
-	#
-	# Raised as plain ValidationError (-> HTTP 417), not DoesNotExistError
-	# (-> HTTP 404): this endpoint is dispatched through the WEBSITE-engine's
-	# "cmd"-based POST to bare "/" (see frappe/website/js/website.js), whose
-	# server-side handler renders a 404 as a full HTML "Not Found" page —
-	# the login form's AJAX expects a JSON body with _server_messages (the
-	# 417 path) to fill its error banner, so a 404 here would silently break
-	# the message the user actually needs to see instead of just wrapping it.
 	except frappe.DoesNotExistError:
 		frappe.clear_messages()
-		frappe.throw(_("This email is not in our records."))
 	except frappe.OutgoingEmailError:
 		frappe.clear_messages()
 		frappe.log_error(title="Login link email could not be sent", message=frappe.get_traceback())
@@ -203,21 +175,7 @@ def _generate_temporary_login_link(email: str, expiry: int):
 	key = frappe.generate_hash()
 	frappe.cache.set_value(f"one_time_login_key:{key}", email, expires_in_sec=expiry * 60)
 
-	# LOCAL FIX (not in the upstream repo): /api/method/<cmd> is Frappe's own
-	# convention of using the literal importable dotted path as the URL, so
-	# this link always said "frappe.www.login.login_via_key" — visible in the
-	# emailed link and the browser address bar alike, a giveaway that a
-	# tenant's own product is a Frappe site underneath. pyx.tenant.api ships
-	# a one-line passthrough to this exact function (see its own comment) —
-	# same behaviour, a link that reads "pyx..." instead when pyx is
-	# installed. Falls back to the real path otherwise so this keeps working
-	# on a bench that never installs pyx at all.
-	cmd = (
-		"pyx.tenant.api.login_via_key"
-		if "pyx" in frappe.get_installed_apps()
-		else "frappe.www.login.login_via_key"
-	)
-	return get_url(f"/api/method/{cmd}?key={key}", allow_header_override=False)
+	return get_url(f"/api/method/frappe.www.login.login_via_key?key={key}", allow_header_override=False)
 
 
 @frappe.whitelist(allow_guest=True, methods=["GET"])

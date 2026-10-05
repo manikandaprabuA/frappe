@@ -131,8 +131,8 @@ export const useStore = defineStore("workflow-builder-store", () => {
 
 	function setup_breadcrumbs() {
 		let breadcrumbs = `
-			<li><a href="/workspace/workflow">${__("Workflow")}</a></li>
-			<li><a href="/workspace/workflow/${workflow_name.value}">${__(workflow_name.value)}</a></li>
+			<li><a href="/desk/workflow">${__("Workflow")}</a></li>
+			<li><a href="/desk/workflow/${workflow_name.value}">${__(workflow_name.value)}</a></li>
 			<li class="disabled"><a href="#">${__("Workflow Builder")}</a></li>
 		`;
 		frappe.breadcrumbs.clear();

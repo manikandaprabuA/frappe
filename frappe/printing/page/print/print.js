@@ -139,7 +139,7 @@ frappe.ui.form.PrintView = class {
 			description =
 				"<div class='form-message yellow p-3 mt-3'>" +
 				__("Footer might not be visible as {0} option is disabled</div>", [
-					`<a href="/workspace/print-settings/Print Settings">${__(
+					`<a href="/desk/print-settings/Print Settings">${__(
 						"Repeat Header and Footer"
 					)}</a>`,
 				]);

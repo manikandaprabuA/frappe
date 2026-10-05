@@ -32,12 +32,7 @@ frappe.setup = {
 
 frappe.pages["setup-wizard"].on_page_load = function (wrapper) {
 	if (frappe.boot.setup_complete) {
-		// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-		// "/workspace" (see router.js's make_url/strip_prefix) — a direct
-		// window.location.href assignment, not a click on an <a>, so it
-		// isn't caught by the global click-interceptor that reroutes other
-		// hrefs; needs the new prefix directly.
-		window.location.href = frappe.boot.apps_data.default_path || "/workspace";
+		window.location.href = frappe.boot.apps_data.default_path || "/desk";
 	}
 	let requires = frappe.boot.setup_wizard_requires || [];
 	frappe.require(requires, function () {
@@ -253,10 +248,7 @@ frappe.setup.SetupWizard = class SetupWizard extends frappe.ui.Slides {
 			localStorage.current_route = "";
 			localStorage.current_app = "";
 
-			// LOCAL FIX (not in the upstream repo): "/desk" renamed to
-			// "/workspace" (see router.js's make_url/strip_prefix) — same
-			// direct window.location.href assignment as on_page_load above.
-			window.location.href = current_route || frappe.boot.apps_data.default_path || "/workspace";
+			window.location.href = current_route || frappe.boot.apps_data.default_path || "/desk";
 		}, 2000);
 	}
 
