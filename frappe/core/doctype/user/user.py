@@ -1211,18 +1211,24 @@ def sign_up(email: str, full_name: str, redirect_to: str) -> tuple[int, str]:
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit(limit=get_password_reset_limit, seconds=60 * 60)
 def reset_password(user: str) -> None:
-	# Always return the same generic response regardless of whether the user
-	# exists, is disabled, or is restricted. This prevents username enumeration
-	# via different messages or HTTP status codes (CWE-204).
-
+	# Upstream always returns the same generic response regardless of whether
+	# the user exists, is disabled, or is restricted — a deliberate anti
+	# user-enumeration measure (CWE-204). Administrator/disabled users still
+	# get that generic response below (no password-reset email is actually
+	# sent for them either way); only a nonexistent user now gets told so
+	# explicitly, same trade-off and same reasoning as
+	# frappe.www.login.send_login_link's DoesNotExistError handling.
 	try:
 		user_doc: User = frappe.get_doc("User", user)
+	except frappe.DoesNotExistError:
+		frappe.clear_messages()
+		frappe.throw(_("This email is not in our records."))
+
+	try:
 		if user_doc.name != "Administrator" and user_doc.enabled:
 			user_doc.validate_reset_password()
 			user_doc._reset_password(send_email=True)
 		# For Administrator or disabled users: silently skip — same response below
-	except frappe.DoesNotExistError:
-		frappe.clear_messages()
 	except frappe.OutgoingEmailError:
 		frappe.clear_messages()
 		frappe.log_error(title="Password reset email could not be sent", message=frappe.get_traceback())
