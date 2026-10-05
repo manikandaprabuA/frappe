@@ -469,7 +469,17 @@ frappe.Application = class Application {
 		);
 	}
 	redirect_to_login() {
-		window.location.href = `/login?redirect-to=${encodeURIComponent(
+		// LOCAL FIX (not in the upstream repo): bare "/login" has no meaning
+		// to the gateway once a tenant session is active — it only ever
+		// serves the login page at "/workspace/{slug}/login". Without this,
+		// logging out (or an expired session) drops the user onto the
+		// platform's own /login instead of this tenant's, which is what
+		// they actually need to get back in. The slug is read from the same
+		// cookie the gateway itself sets on every real tenant visit
+		// (pyx_tenant on the live server, pyxd_tenant on local staging).
+		const match = document.cookie.match(/(?:^|; )pyxd?_tenant=([^;]+)/);
+		const tenant_prefix = match ? `/workspace/${decodeURIComponent(match[1])}` : "";
+		window.location.href = `${tenant_prefix}/login?redirect-to=${encodeURIComponent(
 			window.location.pathname + window.location.search
 		)}`;
 	}
