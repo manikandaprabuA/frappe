@@ -497,18 +497,6 @@ frappe.router = {
 		return route;
 	},
 
-	// LOCAL FIX (not in the upstream repo): this gateway puts every tenant
-	// behind its own /workspace/{slug} path prefix, kept visible in the
-	// browser's address bar for the whole session (not just the login
-	// page) — the gateway sets this cookie on every real tenant visit, so
-	// reading it back here is how make_url()/strip_prefix() below stay in
-	// sync with whatever URL the gateway is actually serving this page at.
-	// Empty outside a tenant context (e.g. the platform's own /console).
-	get_tenant_prefix() {
-		const match = document.cookie.match(/(?:^|; )pyxd?_tenant=([^;]+)/);
-		return match ? "/workspace/" + decodeURIComponent(match[1]) : "";
-	},
-
 	make_url(params) {
 		let path_string = $.map(params, function (a) {
 			if ($.isPlainObject(a)) {
@@ -530,20 +518,12 @@ frappe.router = {
 		// gateway (pyx-gateway.conf) transparently rewrites "/workspace/..."
 		// to "/desk/..." before it ever reaches Frappe, so nothing server-side
 		// needs to know this rename happened at all.
-		//
-		// LOCAL FIX (not in the upstream repo): tenant_prefix (see
-		// get_tenant_prefix() above) goes in FRONT of that, so the address
-		// bar keeps showing /workspace/{slug}/... for the whole session, not
-		// just the login page — the gateway strips its own prefix back off
-		// (and un-renames the remaining "workspace" back to "desk") before
-		// this ever reaches Frappe, same as the plain rename above.
-		const tenant_prefix = this.get_tenant_prefix();
 		if (path_string) {
-			return tenant_prefix + "/workspace/" + path_string;
+			return "/workspace/" + path_string;
 		}
 
 		if (params.length == 0) {
-			return tenant_prefix + "/workspace";
+			return "/workspace";
 		}
 		// Resolution order
 		// 1. User's default workspace in user doctype
@@ -552,7 +532,7 @@ frappe.router = {
 		// 4. First workspace in list of current app
 		// 5. First workspace in list
 
-		return tenant_prefix + "/workspace";
+		return "/workspace";
 	},
 
 	/**
@@ -585,22 +565,6 @@ frappe.router = {
 
 	strip_prefix(route) {
 		if (route.substr(0, 1) == "/") route = route.substr(1); // for /desk/sub
-
-		// LOCAL FIX (not in the upstream repo): strip this gateway's own
-		// tenant prefix first (see make_url()'s write-side counterpart
-		// above) — it's a routing concern the gateway adds in front of
-		// whatever Frappe itself serves, not part of Frappe's own route
-		// structure, so it must never leak into the route array below.
-		// Matched against the actual cookie value rather than just always
-		// dropping the first segment, so a route that happens to start
-		// with the same word on a non-tenant page (the platform's own
-		// /console) isn't mistaken for this prefix.
-		const tenant_prefix = this.get_tenant_prefix().substr(1); // "workspace/{slug}", no leading slash
-		if (tenant_prefix) {
-			if (route === tenant_prefix) route = "";
-			else if (route.startsWith(tenant_prefix + "/")) route = route.substr(tenant_prefix.length + 1);
-		}
-
 		// LOCAL FIX (not in the upstream repo): "workspace" is the new
 		// canonical prefix (see make_url() above for the write side) —
 		// "desk" is still recognized too, purely so a stale bookmark/link

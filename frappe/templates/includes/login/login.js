@@ -317,23 +317,6 @@ login.login_handlers = (function () {
 		};
 	}
 
-	// LOCAL FIX (not in the upstream repo): keeps the gateway's tenant
-	// prefix in the address bar past login, not just on the login page
-	// itself — reads the same cookie the gateway sets on every real tenant
-	// visit (pyx_tenant / pyxd_tenant) and prepends /workspace/{slug} to a
-	// path if it isn't already there. See router.js's matching
-	// get_tenant_prefix() for why this needs to be idempotent: a
-	// redirect-to value reaching this page may already be fully prefixed
-	// (e.g. one built by frappe/www/desk.py's guest redirect), and double
-	// prefixing would break it.
-	var login_tenant_slug = (document.cookie.match(/(?:^|; )pyxd?_tenant=([^;]+)/) || [])[1];
-	var with_tenant_prefix = function (path) {
-		if (!login_tenant_slug || !path) return path;
-		var prefix = "/workspace/" + decodeURIComponent(login_tenant_slug);
-		if (path === prefix || path.indexOf(prefix + "/") === 0) return path;
-		return prefix + path;
-	};
-
 	var login_handlers = {
 		200: function (data) {
 			if (data.message == 'Logged In') {
@@ -352,7 +335,7 @@ login.login_handlers = (function () {
 				if (_redirect_to && _redirect_to.charAt(0) !== "/" && !/^[a-z][a-z0-9+.-]*:/i.test(_redirect_to)) {
 					_redirect_to = "/" + _redirect_to;
 				}
-				window.location.href = with_tenant_prefix(_redirect_to);
+				window.location.href = _redirect_to;
 			} else if (data.message == 'Password Reset') {
 				window.location.href = frappe.utils.sanitise_redirect(data.redirect_to);
 			} else if (data.message == "No App") {
@@ -369,12 +352,11 @@ login.login_handlers = (function () {
 				}
 
 				if (last_visited && last_visited != "/login") {
-					window.location.href = with_tenant_prefix(last_visited);
+					window.location.href = last_visited;
 				} else {
 					// LOCAL FIX (not in the upstream repo): same bare-relative-path
 					// issue as the "Logged In" branch above.
-					var _home_page = data.home_page.charAt(0) === "/" ? data.home_page : "/" + data.home_page;
-					window.location.href = with_tenant_prefix(_home_page);
+					window.location.href = data.home_page.charAt(0) === "/" ? data.home_page : "/" + data.home_page;
 				}
 			} else if (window.location.hash === '#forgot') {
 				// Always show the same message regardless of whether the account
