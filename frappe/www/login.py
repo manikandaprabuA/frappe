@@ -175,7 +175,24 @@ def _generate_temporary_login_link(email: str, expiry: int):
 	key = frappe.generate_hash()
 	frappe.cache.set_value(f"one_time_login_key:{key}", email, expires_in_sec=expiry * 60)
 
-	return get_url(f"/api/method/frappe.www.login.login_via_key?key={key}", allow_header_override=False)
+	path = f"/api/method/frappe.www.login.login_via_key?key={key}"
+
+	# LOCAL FIX (not in the upstream repo): get_url() just joins host_name
+	# with this absolute path, which drops any "/workspace/{slug}" prefix
+	# (RFC 3986 reference resolution replaces the path, doesn't append to
+	# it) — same bug, same fix, as pyx.tenant.user_override.PYXUser's
+	# _reset_password(). Without the slug in the URL, the gateway has no
+	# way to tell which tenant this request is for and falls back to
+	# cookie-based routing, so the request can land on a different site
+	# than the one that cached this key, and the link always reads
+	# "invalid or expired" regardless of how fast it's clicked.
+	tenant_slug = frappe.conf.get("pyx_tenant_slug")
+	public_domain = frappe.conf.get("pyx_public_domain")
+	if tenant_slug and public_domain:
+		scheme = frappe.conf.get("pyx_public_scheme", "http")
+		return f"{scheme}://{public_domain}/workspace/{tenant_slug}{path}"
+
+	return get_url(path, allow_header_override=False)
 
 
 @frappe.whitelist(allow_guest=True, methods=["GET"])
