@@ -208,6 +208,21 @@ def login_via_key(key: str):
 		redirect_post_login(
 			desk_user=frappe.db.get_value("User", frappe.session.user, "user_type") == "System User"
 		)
+
+		# LOCAL FIX (not in the upstream repo): redirect_post_login() only
+		# sets frappe.local.response as a side effect (the legacy "www page"
+		# dispatch convention) — relying on frappe.api.handle()'s later
+		# build_response("json") call to notice response.type == "redirect"
+		# and build the actual Response from it. That chain broke on this
+		# bench (confirmed: no Error Log entry at all, exception happening
+		# below Frappe's own error handling, deep in werkzeug's dispatch —
+		# a None response reaching Request.application's wrapper). Returning
+		# an explicit Response here is the documented, modern way to answer
+		# a /api/method/ request and sidesteps that legacy path entirely,
+		# regardless of what's actually wrong with it on this frappe build.
+		import werkzeug.utils
+
+		return werkzeug.utils.redirect(frappe.local.response.get("location") or "/")
 	else:
 		frappe.respond_as_web_page(
 			_("Not Permitted"),
